@@ -27,39 +27,47 @@
         </div>
     </div>
 
-    <script>
-        lucide.createIcons();
+    <!-- ... (previous HTML code remains the same until the script part) ... -->
 
-        const addPdfBtn = document.getElementById("addPdfBtn");
-        const pdfInput = document.getElementById("pdfInput");
-        const jobForm = document.getElementById("jobForm");
-        const generatedTextContainer = document.getElementById("generatedTextContainer");
+<script>
+    lucide.createIcons();
 
-        addPdfBtn.addEventListener("click", () => pdfInput.click());
+    const addPdfBtn = document.getElementById("addPdfBtn");
+    const pdfInput = document.getElementById("pdfInput");
+    const jobForm = document.getElementById("jobForm");
+    const generatedTextContainer = document.getElementById("generatedTextContainer");
 
-        jobForm.addEventListener("submit", async (event) => {
-            event.preventDefault();
+    addPdfBtn.addEventListener("click", () => pdfInput.click());
 
-            const formData = new FormData(jobForm);
+    jobForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(jobForm);
+        try {
             const response = await fetch("/generate-text", {
                 method: "POST",
                 body: formData
             });
 
-            if (response.ok) {
-                const result = await response.json();
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
                 addGeneratedText(result.generated_text);
             } else {
-                alert("Error generating text. Please try again.");
+                alert(result.error || "Error generating text. Please try again.");
             }
-        });
-
-        function addGeneratedText(text) {
-            const p = document.createElement("pre");
-            p.className = "p-2 bg-white bg-opacity-30 rounded-lg";
-            p.textContent = text;
-            generatedTextContainer.appendChild(p);
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error generating text. Please try again.");
         }
-    </script>
+    });
+
+    function addGeneratedText(text) {
+        const p = document.createElement("pre");
+        p.className = "p-2 bg-white bg-opacity-30 rounded-lg whitespace-pre-wrap";
+        p.textContent = text;
+        generatedTextContainer.appendChild(p);
+    }
+</script>
 </body>
 </html>
