@@ -28,5 +28,32 @@
    ![Step 3: View the Analysis](image/3.png)
 
 
+## How to Run
+
+Follow these steps to set up and run the application using the included virtual environment:
+
+1. **Clone the Repository**  
+   Open a terminal and run:
+   ```bash
+   git clone https://github.com/yourusername/your-repo-name.git
+
+2. **Navigate to the MIRA Folder**  
+   ```bash
+   cd your-repo-name/MIRA
+
+3. **Activate the Included Virtual Environment**  
+   On Windows:
+   ```bash
+   .\venv\Scripts\activate
+
+4. **Run app.py**  
+   Open app.py and run:
+   ```python
+   python app.py
+
+4. **On Errors with venv files**
+   Download 
+   ```bash
+   pip install -r requirements.txt
 
 
