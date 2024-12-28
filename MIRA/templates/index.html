@@ -27,7 +27,8 @@
         </div>
     </div>
 
-    <!-- ... (previous HTML code remains the same until the script part) ... -->
+    
+
 
 <script>
     lucide.createIcons();
@@ -52,7 +53,13 @@
             const result = await response.json();
             
             if (response.ok && result.success) {
-                addGeneratedText(result.generated_text);
+                const outputDiv = document.createElement("div");
+                outputDiv.className = "p-4 bg-white bg-opacity-30 rounded-lg space-y-4";
+                outputDiv.innerHTML = result.generated_text;
+                
+                // Clear previous results
+                generatedTextContainer.innerHTML = '';
+                generatedTextContainer.appendChild(outputDiv);
             } else {
                 alert(result.error || "Error generating text. Please try again.");
             }
@@ -61,13 +68,6 @@
             alert("Error generating text. Please try again.");
         }
     });
-
-    function addGeneratedText(text) {
-        const p = document.createElement("pre");
-        p.className = "p-2 bg-white bg-opacity-30 rounded-lg whitespace-pre-wrap";
-        p.textContent = text;
-        generatedTextContainer.appendChild(p);
-    }
 </script>
 </body>
 </html>

@@ -1,14 +1,15 @@
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask, render_template, request, jsonify
 from mira_sdk import MiraClient
 from PyPDF2 import PdfReader
 import io
 import logging
+import json
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize MiraClient with your API key
+# Initialize MiraClient
 client = MiraClient(config={"API_KEY": "sb-ed1b1b2d8e10ceda7513b1dfbc8ab880"})
 
 # Flow configuration
@@ -28,6 +29,46 @@ def extract_text_from_pdf(pdf_file):
     except Exception as e:
         logger.error(f"PDF extraction error: {str(e)}")
         raise Exception(f"Failed to process PDF: {str(e)}")
+
+def format_output(result):
+    """Format the Mira flow output into a structured HTML string"""
+    formatted_output = []
+    
+    if isinstance(result, str):
+        try:
+            result = json.loads(result)
+        except:
+            pass
+    
+    # Role Analysis
+    if 'role_analysis' in result:
+        formatted_output.append("<div class='section'>")
+        formatted_output.append("<h2 class='text-xl font-bold mb-2'>Role Analysis</h2>")
+        formatted_output.append(result['role_analysis'].replace('\n', '<br>'))
+        formatted_output.append("</div><br>")
+    
+    # Skills Match Analysis
+    if 'skill_match_analysis' in result:
+        formatted_output.append("<div class='section'>")
+        formatted_output.append("<h2 class='text-xl font-bold mb-2'>Skills Match Analysis</h2>")
+        formatted_output.append(result['skill_match_analysis'].replace('\n', '<br>'))
+        formatted_output.append("</div><br>")
+    
+    # Resume Improvement
+    if 'resume_improvement' in result:
+        formatted_output.append("<div class='section'>")
+        formatted_output.append("<h2 class='text-xl font-bold mb-2'>Resume Improvement Suggestions</h2>")
+        formatted_output.append(result['resume_improvement'].replace('\n', '<br>'))
+        formatted_output.append("</div><br>")
+    
+    # Interview Preparation
+    if 'interview_preparation' in result:
+        formatted_output.append("<div class='section'>")
+        formatted_output.append("<h2 class='text-xl font-bold mb-2'>Interview Preparation Guide</h2>")
+        formatted_output.append(result['interview_preparation'].replace('\n', '<br>'))
+        formatted_output.append("</div>")
+    
+    return ''.join(formatted_output)
 
 @app.route('/')
 def index():
@@ -55,20 +96,14 @@ def generate_text():
         }
 
         flow_name = f"{FLOW_AUTHOR}/{FLOW_NAME}/{FLOW_VERSION}"
-        logger.info(f"Executing flow: {flow_name}")
-        
         result = client.flow.execute(flow_name, input_data)
         
-        # Log the result structure to understand what we're getting
-        logger.info(f"Mira Flow Result: {result}")
-        
-        # Return the text content from the result
-        # Assuming the LLM output is in the 'response' field
-        generated_text = result.get('response', str(result))
+        # Format the output
+        formatted_output = format_output(result)
         
         return jsonify({
             "success": True,
-            "generated_text": generated_text
+            "generated_text": formatted_output
         })
 
     except Exception as e:
